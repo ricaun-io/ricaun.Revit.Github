@@ -2,6 +2,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using ricaun.Revit.UI;
 using System;
+using System.Windows.Media;
 
 namespace ricaun.Revit.Github.Example.Revit
 {
@@ -15,6 +16,11 @@ namespace ricaun.Revit.Github.Example.Revit
             ribbonPanel = application.CreatePanel("Github");
             ribbonPanel.AddPushButton<Commands.Command>("Command")
                 .SetLargeImage("https://img.icons8.com/material-outlined/32/000000/github.png");
+
+#if DEBUG
+            ribbonPanel.GetRibbonPanel().CustomPanelTitleBarBackground = Brushes.Red;
+#endif
+
             return Result.Succeeded;
         }
 

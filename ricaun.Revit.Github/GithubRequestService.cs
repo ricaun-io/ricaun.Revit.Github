@@ -1,58 +1,135 @@
-﻿using ricaun.Revit.Github.Services;
+﻿using ricaun.Revit.Github.Data;
+using ricaun.Revit.Github.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ricaun.Revit.Github
 {
+    /// <summary>
+    /// GithubRequestService
+    /// </summary>
     public class GithubRequestService
     {
+        #region CONST
+        private const string BUNDLE_ZIP = "bundle.zip";
+        #endregion
+
+        #region private readonly
         private readonly HttpClient client;
         private readonly JsonService jsonService;
-        public GithubRequestService()
+        private readonly PathBundleService pathBundleService;
+        private readonly string user;
+        private readonly string repo;
+        private readonly Assembly assembly;
+        #endregion
+
+        #region Download Events
+        /// <summary>
+        /// DownloadProgressChanged
+        /// </summary>
+        public event DownloadProgressChangedEventHandler DownloadProgressChanged;
+        /// <summary>
+        /// DownloadFileCompleted
+        /// </summary>
+        public event AsyncCompletedEventHandler DownloadFileCompleted;
+        /// <summary>
+        /// DownloadFileException
+        /// </summary>
+        public event Action<Exception> DownloadFileException;
+        #endregion
+
+
+        /// <summary>
+        /// GithubRequestService
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="repo"></param>
+        public GithubRequestService(string user, string repo)
         {
+            this.user = user;
+            this.repo = repo;
+
+            this.assembly = Assembly.GetCallingAssembly();
+
             this.client = new HttpClient();
             this.client.Timeout = TimeSpan.FromMilliseconds(5000);
             this.jsonService = new JsonService();
+            this.pathBundleService = new PathBundleService();
         }
 
-        // ricaun-io/ricaun.Nuke.PackageBuilder
-        private string GenereteApiGithub(string user, string repo)
+        private string UrlReleasesLatest => GenereteApiGithubLatest(user, repo);
+        private string GenereteApiGithubLatest(string user, string repo)
         {
             return $"https://api.github.com/repos/{user}/{repo}/releases/latest";
         }
 
-        public string url => GenereteApiGithub("ricaun-io", "ricaun.Nuke.PackageBuilder");
-        //"https://api.github.com/repos/ricaun-io/ricaun.Nuke.PackageBuilder/releases/latest";
+        private string GetAssemblyVersion() => this.assembly.GetName().Version.ToString(3);
 
-        public string GetDownloadFile(string folder)
+        /// <summary>
+        /// DownloadLast
+        /// </summary>
+        /// <returns></returns>
+        public string DownloadLast()
         {
-            var json = GetString(url);
-            if (json == null) return "";
-
-            var model = this.jsonService.DeserializeObject<GithubModel>(json);
-
-            Console.WriteLine(model);
-
-            var bundle = model.assets.FirstOrDefault(e => e.name.EndsWith("bundle.zip"));
-
-            if (bundle != null)
+            if (pathBundleService.TryGetPath(out string path))
             {
-                Console.WriteLine($"{bundle.name} {bundle.download_count} {bundle.browser_download_url}");
-                DownloadFile(folder, bundle.browser_download_url);
+                return GetDownloadFile(path);
             }
+            return null;
+        }
+
+        private GithubModel GetGithubModelLast()
+        {
+            var json = GetString(UrlReleasesLatest);
+            if (json == null)
+                return null;
+
+            return this.jsonService.DeserializeObject<GithubModel>(json);
+        }
+
+        private bool IsVersionModel(GithubModel model)
+        {
+            var versionAssembly = GetAssemblyVersion();
+            var versionModel = model.name;
+            try
+            {
+                return (new Version(versionAssembly) < new Version(versionModel));
+            }
+            catch { }
+            return false;
+        }
+
+        private string GetDownloadFile(string folder)
+        {
+            var model = GetGithubModelLast();
+
+            if (model == null) return null;
+
+            if (IsVersionModel(model) == false) return null;
+
+            var bundle = model.assets.FirstOrDefault(e => e.name.EndsWith(BUNDLE_ZIP));
+
+            if (bundle == null) return null;
+
+            DownloadFile(folder, bundle.browser_download_url);
 
             return model.body;
         }
 
-        public async Task<string> GetStringAsync(string endpoint)
+        #region Get String
+
+        #region Remove???
+
+        private async Task<string> GetStringAsync(string endpoint)
         {
             var request = this.GetRequestMessage(HttpMethod.Get, endpoint);
 
@@ -62,7 +139,7 @@ namespace ricaun.Revit.Github
             return text;
         }
 
-        public async Task<T> GetAsync<T>(string endpoint) where T : class
+        private async Task<T> GetAsync<T>(string endpoint) where T : class
         {
             var request = this.GetRequestMessage(HttpMethod.Get, endpoint);
 
@@ -70,58 +147,6 @@ namespace ricaun.Revit.Github
 
             var text = await response.Content.ReadAsStringAsync();
             return this.ConvertResponseToType<T>(text);
-        }
-
-        public string GetString(string address)
-        {
-            if (IsConnectedToInternet() == false)
-                return null;
-
-            try
-            {
-                using (var client = new System.Net.WebClient())
-                {
-                    client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
-                    client.Encoding = System.Text.Encoding.UTF8;
-                    return client.DownloadString(address);
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
-        public void DownloadFile(string extractPath, string address)
-        {
-            var fileName = Path.GetFileName(address);
-            var zipPath = Path.Combine(extractPath, fileName);
-            //var zipPath = $@"D:\Github\{fileName}";
-            //var extractPath = Path.GetDirectoryName(zipPath);
-
-            using (var client = new WebClient())
-            {
-                client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
-                client.DownloadProgressChanged += (s, e) => { Console.WriteLine($"Download: {e.ProgressPercentage}%"); };
-                client.DownloadFileCompleted += (s, e) =>
-                {
-                    Console.WriteLine($"Download Complete: {e.UserState} {e.Cancelled} {e.Error}");
-                    if (e.Cancelled) return;
-                    try
-                    {
-                        if (Path.GetExtension(zipPath) == ".zip")
-                        {
-                            Console.WriteLine("ZipFile Extract");
-                            ZipFileHelper.ExtractToDirectory(zipPath, extractPath);
-                            File.Delete(zipPath);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                    }
-                };
-                client.DownloadFileAsync(new Uri(address), zipPath);
-            }
         }
 
 
@@ -142,6 +167,7 @@ namespace ricaun.Revit.Github
             return request;
         }
 
+
         private T ConvertResponseToType<T>(string json)
         {
             try
@@ -158,8 +184,63 @@ namespace ricaun.Revit.Github
                 throw new InvalidCastException($"Could not convert response to {typeof(T).Name}");
             }
         }
+        #endregion
 
-        #region private
+        private string GetString(string address)
+        {
+            if (IsConnectedToInternet() == false)
+                return null;
+
+            try
+            {
+                using (var client = new System.Net.WebClient())
+                {
+                    client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
+                    client.Encoding = System.Text.Encoding.UTF8;
+                    return client.DownloadString(address);
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Download
+        private void DownloadFile(string extractPath, string address)
+        {
+            var fileName = Path.GetFileName(address);
+            var zipPath = Path.Combine(extractPath, fileName);
+
+            using (var client = new WebClient())
+            {
+                client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
+                client.DownloadProgressChanged += DownloadProgressChanged;
+                client.DownloadFileCompleted += (s, e) =>
+                {
+                    DownloadFileCompleted?.Invoke(s, e);
+                    if (e.Cancelled) return;
+                    try
+                    {
+                        if (Path.GetExtension(zipPath) == ".zip")
+                        {
+                            ZipFileHelper.ExtractToDirectory(zipPath, extractPath);
+                            File.Delete(zipPath);
+                            Console.WriteLine($"Extract: {fileName}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        DownloadFileException?.Invoke(ex);
+                    }
+                };
+                client.DownloadFileAsync(new Uri(address), zipPath);
+            }
+        }
+        #endregion
+
+        #region IsConnectedToInternet
         private bool IsConnectedToInternet()
         {
             int Desc;
@@ -168,95 +249,5 @@ namespace ricaun.Revit.Github
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
         #endregion
-    }
-
-
-
-    public class GithubModel
-    {
-        public string url { get; set; }
-        public string assets_url { get; set; }
-        public string upload_url { get; set; }
-        public string html_url { get; set; }
-        public int id { get; set; }
-        public Author author { get; set; }
-        public string node_id { get; set; }
-        public string tag_name { get; set; }
-        public string target_commitish { get; set; }
-        public string name { get; set; }
-        public bool draft { get; set; }
-        public bool prerelease { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime published_at { get; set; }
-        public Asset[] assets { get; set; }
-        public string tarball_url { get; set; }
-        public string zipball_url { get; set; }
-        public string body { get; set; }
-
-        public override string ToString()
-        {
-            return $"{name} ({string.Join(" ", assets.Select(e => e.name))}) \r\n{body}";
-        }
-    }
-
-    public class Author
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string node_id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-    public class Asset
-    {
-        public string url { get; set; }
-        public int id { get; set; }
-        public string node_id { get; set; }
-        public string name { get; set; }
-        public string label { get; set; }
-        public Uploader uploader { get; set; }
-        public string content_type { get; set; }
-        public string state { get; set; }
-        public int size { get; set; }
-        public int download_count { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
-        public string browser_download_url { get; set; }
-    }
-
-    public class Uploader
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string node_id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
     }
 }

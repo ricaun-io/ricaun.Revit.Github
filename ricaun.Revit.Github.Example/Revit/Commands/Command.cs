@@ -14,16 +14,24 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
         {
             UIApplication uiapp = commandData.Application;
 
-            var pathBundleService = new PathBundleService();
-            var request = new GithubRequestService();
+            var request = new GithubRequestService("ricaun-io", "RevitAddin.TemporaryGraphicsExample");
+            request.DownloadProgressChanged += (s, e) =>
+            {
+                //Console.WriteLine($"--- Download: {e.ProgressPercentage}%");
+            };
+
+            request.DownloadFileCompleted += (s, e) =>
+            {
+                Console.WriteLine($"Download Complete");
+            };
+
+            request.DownloadFileException += (ex) =>
+            {
+                Console.WriteLine($"Exception {ex}");
+            };
 
             //Process.Start(pathBundleService.GetAssemblyPath());
-            string text = "Bundle no Found";
-            if (pathBundleService.TryGetPath(out string path))
-            {
-                Console.WriteLine($"Bundle: {path }");
-                text = request.GetDownloadFile(path);
-            }
+            string text = request.DownloadLast();
             System.Windows.MessageBox.Show(text);
 
             return Result.Succeeded;

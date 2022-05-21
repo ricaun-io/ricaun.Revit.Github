@@ -2,8 +2,11 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace ricaun.Revit.Github
+namespace ricaun.Revit.Github.Services
 {
+    /// <summary>
+    /// ZipFileHelper
+    /// </summary>
     public static class ZipFileHelper
     {
         /// <summary>
