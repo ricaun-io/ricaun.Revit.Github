@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0] / 2022-05-21
 ### Features
-- [ ] Download Bundle From Github
+- [x] Download Bundle From Github
 - [ ] Improve Library Files
 #### GithubRequestService
 - [x] Clear
@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [x] Add PathBundle
 - [x] Add XML comment
 ### Added
+- Add DownloadBundleService
+- Add GithubBundleService
+- Add GithubService
+- Add JsonService
+- Add PathBundleService
+- Add GithubRequestService
 - Base Package Files
 - Add Example
 

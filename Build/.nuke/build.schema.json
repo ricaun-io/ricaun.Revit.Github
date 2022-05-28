@@ -6,6 +6,9 @@
     "build": {
       "type": "object",
       "properties": {
+        "ApplicationType": {
+          "type": "string"
+        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -15,7 +18,7 @@
         },
         "GitHubToken": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Help": {
           "type": "boolean",
@@ -59,11 +62,11 @@
         },
         "NugetApiKey": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "NugetApiUrl": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Partition": {
           "type": "string",
@@ -98,11 +101,11 @@
         },
         "SignFile": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "SignPassword": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Skip": {
           "type": "array",

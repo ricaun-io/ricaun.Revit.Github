@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using ricaun.Revit.Github;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace ricaun.Revit.Github.Example.Revit.Commands
 {
@@ -14,25 +15,19 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
         {
             UIApplication uiapp = commandData.Application;
 
-            var request = new GithubRequestService("ricaun-io", "RevitAddin.TemporaryGraphicsExample");
-            request.DownloadProgressChanged += (s, e) =>
-            {
-                //Console.WriteLine($"--- Download: {e.ProgressPercentage}%");
-            };
-
-            request.DownloadFileCompleted += (s, e) =>
-            {
-                Console.WriteLine($"Download Complete");
-            };
-
-            request.DownloadFileException += (ex) =>
-            {
-                Console.WriteLine($"Exception {ex}");
-            };
-
-            //Process.Start(pathBundleService.GetAssemblyPath());
+            var request = new GithubRequestService("ricaun-io", "ricaun.Nuke.PackageBuilder");
             string text = request.DownloadLast();
             System.Windows.MessageBox.Show(text);
+
+
+
+            var a = Assembly.GetExecutingAssembly();
+            var version = a.GetName().Version.ToString();
+
+            //var service = new Services.GithubBundleService("ricaun-io", "ricaun.Nuke.PackageBuilder");
+            //Console.WriteLine($"1.2.4 - {version} {service.GetBundleDownloadUrl("1.2.4", version)}");
+            //Console.WriteLine($"0.0.10 - {version} {service.GetBundleDownloadUrl("0.0.10", version)}");
+            //Console.WriteLine($"0.0.10 {service.GetBundleDownloadUrl("0.0.10")}");
 
             return Result.Succeeded;
         }
