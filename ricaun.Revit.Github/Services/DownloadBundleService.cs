@@ -7,6 +7,9 @@ using System.Net;
 
 namespace ricaun.Revit.Github.Services
 {
+    /// <summary>
+    /// DownloadBundleService
+    /// </summary>
     public class DownloadBundleService
     {
         #region const

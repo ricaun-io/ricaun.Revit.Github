@@ -5,21 +5,41 @@ using System.Reflection;
 
 namespace ricaun.Revit.Github.Services
 {
+    /// <summary>
+    /// GithubBundleService
+    /// </summary>
     public class GithubBundleService : GithubService
     {
         #region const
         private const string CONST_BUNDLE_ZIP = ".bundle.zip";
         #endregion
+
+        /// <summary>
+        /// GithubBundleService
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="repo"></param>
         public GithubBundleService(string user, string repo) : base(user, repo)
         {
 
         }
 
+        /// <summary>
+        /// GetBundleDownloadUrlLatest
+        /// </summary>
+        /// <param name="versionAssembly"></param>
+        /// <returns></returns>
         public string GetBundleDownloadUrlLatest(string versionAssembly = null)
         {
             return GetBundleDownloadUrl(null, versionAssembly);
         }
 
+        /// <summary>
+        /// GetBundleDownloadUrl
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="versionAssembly"></param>
+        /// <returns></returns>
         public string GetBundleDownloadUrl(string name, string versionAssembly = null)
         {
             var model = GetGithubModel(name);
@@ -30,6 +50,7 @@ namespace ricaun.Revit.Github.Services
             return null;
         }
 
+        #region private
         private bool IsVersionModel(GithubModel model, string versionAssembly)
         {
             if (string.IsNullOrEmpty(versionAssembly)) return true;
@@ -41,8 +62,7 @@ namespace ricaun.Revit.Github.Services
             catch { }
             return false;
         }
-        #region internal
-        internal Asset GetAssetBundle(GithubModel githubModel)
+        private Asset GetAssetBundle(GithubModel githubModel)
         {
             var asset = githubModel?.assets.FirstOrDefault(e => e.name.EndsWith(CONST_BUNDLE_ZIP));
             return asset;

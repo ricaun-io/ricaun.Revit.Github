@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 namespace ricaun.Revit.Github.Services
 {
 
+    /// <summary>
+    /// GithubService
+    /// </summary>
     public class GithubService
     {
         #region private
@@ -14,6 +17,11 @@ namespace ricaun.Revit.Github.Services
         private readonly string repo;
         #endregion
 
+        /// <summary>
+        /// GithubService
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="repo"></param>
         public GithubService(string user, string repo)
         {
             this.user = user;
@@ -21,7 +29,7 @@ namespace ricaun.Revit.Github.Services
             jsonService = new JsonService();
         }
 
-        public void Show()
+        internal void Show()
         {
             foreach (var item in GetGithubModels())
             {
