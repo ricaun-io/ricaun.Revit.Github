@@ -33,11 +33,11 @@ namespace ricaun.Revit.Github.Services
 
         #region Download
         /// <summary>
-        /// Download and unzip Bundle
+        /// Download Async and unzip Bundle
         /// </summary>
         /// <param name="extractPath"></param>
         /// <param name="address"></param>
-        public void DownloadBundle(string extractPath, string address)
+        public void DownloadBundleAsync(string extractPath, string address)
         {
             var fileName = Path.GetFileName(address);
             var zipPath = Path.Combine(extractPath, fileName);

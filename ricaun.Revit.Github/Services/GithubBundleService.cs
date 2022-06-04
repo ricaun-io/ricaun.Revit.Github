@@ -1,10 +1,12 @@
 ﻿using ricaun.Revit.Github.Data;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace ricaun.Revit.Github.Services
 {
+
     /// <summary>
     /// GithubBundleService
     /// </summary>
@@ -24,31 +26,119 @@ namespace ricaun.Revit.Github.Services
 
         }
 
+        ///// <summary>
+        ///// GetBundleDownloadUrlLatest
+        ///// </summary>
+        ///// <param name="versionAssembly"></param>
+        ///// <returns></returns>
+        //public string GetBundleDownloadUrlLatest(string versionAssembly = null)
+        //{
+        //    return GetBundleDownloadUrl(null, versionAssembly);
+        //}
+
+        ///// <summary>
+        ///// GetBundleDownloadUrl
+        ///// </summary>
+        ///// <param name="name"></param>
+        ///// <param name="versionAssembly"></param>
+        ///// <returns></returns>
+        //public string GetBundleDownloadUrl(string name, string versionAssembly = null)
+        //{
+        //    var model = GetGithubModel(name);
+
+        //    if (IsVersionModel(model, versionAssembly))
+        //        return GetAssetBundle(model)?.browser_download_url;
+
+        //    return null;
+        //}
+
         /// <summary>
-        /// GetBundleDownloadUrlLatest
+        /// GetBundleModels
         /// </summary>
-        /// <param name="versionAssembly"></param>
         /// <returns></returns>
-        public string GetBundleDownloadUrlLatest(string versionAssembly = null)
+        public IEnumerable<BundleModel> GetBundleModels()
         {
-            return GetBundleDownloadUrl(null, versionAssembly);
+            var bundleModels = new List<BundleModel>();
+            var models = GetGithubModels();
+
+            foreach (var model in models)
+            {
+                if (GetAssetBundle(model) is Asset asset)
+                {
+                    var bundleModel = new BundleModel()
+                    {
+                        User = this.User,
+                        Repository = this.Repository,
+                        Version = model.name,
+                        Created = model.created_at,
+                        DownloadUrl = asset.browser_download_url,
+                        Body = model.body,
+                    };
+                    bundleModels.Add(bundleModel);
+                }
+            }
+
+            return bundleModels;
         }
 
         /// <summary>
-        /// GetBundleDownloadUrl
+        /// GetBundleModelLatest
         /// </summary>
-        /// <param name="name"></param>
+        /// <returns></returns>
+        public BundleModel GetBundleModelLatest()
+        {
+            return GetBundleModels().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// GetBundleModels
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public IEnumerable<BundleModel> GetBundleModels(Assembly assembly)
+        {
+            return GetBundleModels().Where(e => IsVersionModel(e, assembly));
+        }
+
+        /// <summary>
+        /// GetBundleModels
+        /// </summary>
         /// <param name="versionAssembly"></param>
         /// <returns></returns>
-        public string GetBundleDownloadUrl(string name, string versionAssembly = null)
+        public IEnumerable<BundleModel> GetBundleModels(string versionAssembly)
         {
-            var model = GetGithubModel(name);
-
-            if (IsVersionModel(model, versionAssembly))
-                return GetAssetBundle(model)?.browser_download_url;
-
-            return null;
+            return GetBundleModels().Where(e => IsVersionModel(e, versionAssembly));
         }
+
+        #region BundleModel
+        /// <summary>
+        /// IsVersionModel
+        /// </summary>
+        /// <param name="bundleModel"></param>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public bool IsVersionModel(BundleModel bundleModel, Assembly assembly)
+        {
+            return IsVersionModel(bundleModel, assembly.GetName().Version.ToString(3));
+        }
+        /// <summary>
+        /// IsVersionModel
+        /// </summary>
+        /// <param name="bundleModel"></param>
+        /// <param name="versionAssembly"></param>
+        /// <returns></returns>
+        public bool IsVersionModel(BundleModel bundleModel, string versionAssembly)
+        {
+            if (string.IsNullOrEmpty(versionAssembly)) return true;
+            var versionModel = bundleModel.Version;
+            try
+            {
+                return (new Version(versionAssembly) < new Version(versionModel));
+            }
+            catch { }
+            return false;
+        }
+        #endregion
 
         #region private
         private bool IsVersionModel(GithubModel model, string versionAssembly)

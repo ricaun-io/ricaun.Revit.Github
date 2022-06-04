@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] / 2022-05-21
+### ToDo
+- Async Methods - Problem
 ### Features
 - [x] Download Bundle From Github
 - [ ] Improve Library Files
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [x] Add PathBundle
 - [x] Add XML comment
 ### Added
+- Add BundleModel (Version, DownloadUrl, Body, DataTime)
 - Add DownloadBundleService
 - Add GithubBundleService
 - Add GithubService

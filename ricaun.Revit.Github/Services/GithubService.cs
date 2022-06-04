@@ -1,7 +1,9 @@
 ﻿using ricaun.Revit.Github.Data;
+using System;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace ricaun.Revit.Github.Services
 {
@@ -28,6 +30,15 @@ namespace ricaun.Revit.Github.Services
             this.repo = repo;
             jsonService = new JsonService();
         }
+
+        /// <summary>
+        /// User
+        /// </summary>
+        public string User => this.user;
+        /// <summary>
+        /// Repository
+        /// </summary>
+        public string Repository => this.repo;
 
         internal void Show()
         {
@@ -82,6 +93,40 @@ namespace ricaun.Revit.Github.Services
         #endregion
 
         #region WebClient
+        public Task<string> DownloadStringAsync(string address)
+        {
+            var tcs = new TaskCompletionSource<string>();
+            tcs.SetResult(null);
+            if (IsConnectedToInternet() == false)
+            {
+                return tcs.Task;
+            }
+
+            using (var client = new WebClient())
+            {
+                client.Headers.Add("User-Agent", $"{GetType().Assembly.GetName().Name}");
+                client.Encoding = System.Text.Encoding.UTF8;
+
+                client.DownloadProgressChanged += (s, e) =>
+                {
+                    Console.WriteLine($"DownloadProgressChanged: {e.ProgressPercentage}");
+                };
+
+                client.Disposed += (s, e) =>
+                {
+                    Console.WriteLine($"Disposed: {e.ToString()}");
+                };
+                client.DownloadStringCompleted += (s, e) =>
+                {
+                    //tcs.SetResult(e.Result);
+                    Console.WriteLine($"DownloadStringCompleted: {e.Cancelled} [{e.Result}]");
+                };
+                return client.DownloadStringTaskAsync(address); // Todo: Fix Throw not found 404
+            }
+
+            return tcs.Task;
+        }
+
         private string DownloadString(string address)
         {
             if (IsConnectedToInternet() == false)
@@ -96,9 +141,10 @@ namespace ricaun.Revit.Github.Services
                     return client.DownloadString(address);
                 }
             }
-            catch { }
-
-            return null;
+            catch
+            {
+                return null;
+            }
         }
         private bool IsConnectedToInternet()
         {

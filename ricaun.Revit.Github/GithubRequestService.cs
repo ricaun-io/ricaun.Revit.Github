@@ -32,7 +32,7 @@ namespace ricaun.Revit.Github
         /// DownloadLast
         /// </summary>
         /// <returns></returns>
-        public string DownloadLast()
+        public Data.BundleModel DownloadLast()
         {
             if (pathBundleService.TryGetPath(out string path))
             {
@@ -41,14 +41,14 @@ namespace ricaun.Revit.Github
             return null;
         }
 
-        private string GetDownloadFile(string folder)
+        private Data.BundleModel GetDownloadFile(string folder)
         {
-            var bundleUrl = githubBundleService.GetBundleDownloadUrlLatest();
+            var bundleModel = githubBundleService.GetBundleModelLatest();
 
-            if (bundleUrl != null)
-                downloadBundleService.DownloadBundle(folder, bundleUrl);
+            if (bundleModel is not null)
+                downloadBundleService.DownloadBundleAsync(folder, bundleModel.DownloadUrl);
 
-            return bundleUrl;
+            return bundleModel;
         }
 
     }
