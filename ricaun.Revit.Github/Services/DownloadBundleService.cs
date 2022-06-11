@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ricaun.Revit.Github.Services
 {
@@ -37,7 +38,7 @@ namespace ricaun.Revit.Github.Services
         /// </summary>
         /// <param name="extractPath"></param>
         /// <param name="address"></param>
-        public void DownloadBundleAsync(string extractPath, string address)
+        internal void DownloadBundle(string extractPath, string address)
         {
             var fileName = Path.GetFileName(address);
             var zipPath = Path.Combine(extractPath, fileName);
@@ -64,6 +65,41 @@ namespace ricaun.Revit.Github.Services
             }
         }
         #endregion
+
+        /// <summary>
+        /// DownloadBundleAsync
+        /// </summary>
+        /// <param name="extractPath"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public Task<bool> DownloadBundleAsync(string extractPath, string address)
+        {
+            var fileName = Path.GetFileName(address);
+            var zipPath = Path.Combine(extractPath, fileName);
+
+            var task = Task.Run(async () =>
+                {
+                    var result = false;
+                    using (var client = new WebClient())
+                    {
+                        client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
+                        try
+                        {
+                            await client.DownloadFileTaskAsync(new Uri(address), zipPath);
+                            ExtractBundleZipToDirectory(zipPath, extractPath);
+                            File.Delete(zipPath);
+                            result = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            DownloadFileException?.Invoke(ex);
+                        }
+                    }
+                    return result;
+                });
+            return task;
+        }
+
 
         #region BundleZip
         /// <summary>

@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -40,14 +41,6 @@ namespace ricaun.Revit.Github.Services
         /// </summary>
         public string Repository => this.repo;
 
-        internal void Show()
-        {
-            foreach (var item in GetGithubModels())
-            {
-                System.Console.WriteLine(item);
-            }
-        }
-
         #region api.github
         private string UrlReleasesLatest => GenereteApiGithub(user, repo, "latest");
         private string UrlReleases => GenereteApiGithub(user, repo);
@@ -62,90 +55,83 @@ namespace ricaun.Revit.Github.Services
         #endregion
 
         #region GithubModel
+
         /// <summary>
-        /// Get GithubModel with <paramref name="name"/> 
+        /// GetGithubModels
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        internal GithubModel GetGithubModel(string name)
-        {
-            if (name == null)
-                return GetGithubModelLatest();
-            return GetGithubModels()?.FirstOrDefault(e => e.name == name);
-        }
-        internal GithubModel GetGithubModelLatest()
-        {
-            var json = DownloadString(UrlReleasesLatest);
-            if (json == null)
-                return null;
-
-            return jsonService.DeserializeObject<GithubModel>(json);
-        }
-
+        /// <returns>Empty Array if throw</returns>
         internal GithubModel[] GetGithubModels()
         {
-            var json = DownloadString(UrlReleases);
-            if (json == null)
-                return null;
+            var task = Task.Run(async () =>
+                {
+                    return await GetGithubModelsAsync();
+                });
+            return task.GetAwaiter().GetResult();
+        }
 
-            return jsonService.DeserializeObject<GithubModel[]>(json);
+        /// <summary>
+        /// GetGithubModelsAsync
+        /// </summary>
+        /// <returns>Empty Array if throw</returns>
+        internal Task<GithubModel[]> GetGithubModelsAsync()
+        {
+            return Task.Run(async () =>
+                {
+                    var json = await DownloadStringAsync(UrlReleases);
+                    if (json is null)
+                        return new GithubModel[] { };
+                    return jsonService.DeserializeObject<GithubModel[]>(json);
+                });
+
         }
         #endregion
 
         #region WebClient
+        /// <summary>
+        /// Download String Async
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns>Thrown return null</returns>
         public Task<string> DownloadStringAsync(string address)
         {
-            var tcs = new TaskCompletionSource<string>();
-            tcs.SetResult(null);
-            if (IsConnectedToInternet() == false)
+            return Task.Run<string>(async () =>
             {
-                return tcs.Task;
-            }
-
-            using (var client = new WebClient())
-            {
-                client.Headers.Add("User-Agent", $"{GetType().Assembly.GetName().Name}");
-                client.Encoding = System.Text.Encoding.UTF8;
-
-                client.DownloadProgressChanged += (s, e) =>
+                try
                 {
-                    Console.WriteLine($"DownloadProgressChanged: {e.ProgressPercentage}");
-                };
-
-                client.Disposed += (s, e) =>
-                {
-                    Console.WriteLine($"Disposed: {e.ToString()}");
-                };
-                client.DownloadStringCompleted += (s, e) =>
-                {
-                    //tcs.SetResult(e.Result);
-                    Console.WriteLine($"DownloadStringCompleted: {e.Cancelled} [{e.Result}]");
-                };
-                return client.DownloadStringTaskAsync(address); // Todo: Fix Throw not found 404
-            }
-
-            return tcs.Task;
-        }
-
-        private string DownloadString(string address)
-        {
-            if (IsConnectedToInternet() == false)
-                return null;
-
-            try
-            {
-                using (var client = new WebClient())
-                {
-                    client.Headers.Add("User-Agent", $"{GetType().Assembly.GetName().Name}");
-                    client.Encoding = System.Text.Encoding.UTF8;
-                    return client.DownloadString(address);
+                    using (var client = new WebClient())
+                    {
+                        client.Headers.Add("User-Agent", GetType().Assembly.GetName().Name);
+                        client.Encoding = System.Text.Encoding.UTF8;
+                        return await client.DownloadStringTaskAsync(address);
+                    }
                 }
-            }
-            catch
-            {
+                catch { }
                 return null;
-            }
+            });
         }
+
+        /// <summary>
+        /// DownloadStringAsyncHttp
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns>Thrown return null</returns>
+        private Task<string> DownloadStringAsyncHttp(string address)
+        {
+            return Task.Run<string>(async () =>
+            {
+                try
+                {
+                    using (var httpClient = new HttpClient())
+                    {
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", GetType().Assembly.GetName().Name);
+                        return await httpClient.GetStringAsync(address);
+                    }
+                }
+                catch { }
+                return null;
+            });
+        }
+
         private bool IsConnectedToInternet()
         {
             int Desc;

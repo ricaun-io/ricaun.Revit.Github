@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using ricaun.Revit.Github;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -16,7 +17,10 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
         {
             UIApplication uiapp = commandData.Application;
 
-            //var request = new GithubRequestService("ricaun-io", "ricaun.Nuke.PackageBuilder");
+            var request = new GithubRequestService("ricaun-io", "ricaun.Nuke.PackageBuilder");
+
+            request.Initialize();
+
             //var text = request.DownloadLast();
             //System.Windows.MessageBox.Show($">>> {text}");
 
@@ -34,14 +38,22 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
 
 
 
-            Services.GithubService githubService = new Github.Services.GithubService("", "");
+            var githubService = new Github.Services.GithubBundleService("ricaun-io", "ricaun.Nuke.PackageBuilder2");
             var task = Task.Run(async () =>
                 {
                     try
                     {
-                        var text = await githubService.DownloadStringAsync("https://api.github.com/repos/ricaun-io/ricaun.Nuke.PackageBuilder/releases/latest2");
                         await Task.Delay(100);
+                        var text = await githubService.DownloadStringAsync("https://api.github.com/repos/ricaun-io/ricaun.Nuke.PackageBuilder/releases/latest");
                         Console.WriteLine($"Result {text}");
+
+
+                        var bundleModels = await githubService.GetBundleModelsAsync();
+                        Console.WriteLine(bundleModels.Count());
+                        foreach (var bundleModel in bundleModels)
+                        {
+                            Console.WriteLine(bundleModel);
+                        }
 
                     }
                     catch (Exception ex)
@@ -50,6 +62,8 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
                     }
                 });
 
+
+            //TaskDialog.Show("Hello", "Luiz");
 
             //task.GetAwaiter().GetResult();
 

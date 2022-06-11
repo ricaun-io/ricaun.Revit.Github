@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ricaun.Revit.Github.Services
 {
@@ -26,59 +27,53 @@ namespace ricaun.Revit.Github.Services
 
         }
 
-        ///// <summary>
-        ///// GetBundleDownloadUrlLatest
-        ///// </summary>
-        ///// <param name="versionAssembly"></param>
-        ///// <returns></returns>
-        //public string GetBundleDownloadUrlLatest(string versionAssembly = null)
-        //{
-        //    return GetBundleDownloadUrl(null, versionAssembly);
-        //}
-
-        ///// <summary>
-        ///// GetBundleDownloadUrl
-        ///// </summary>
-        ///// <param name="name"></param>
-        ///// <param name="versionAssembly"></param>
-        ///// <returns></returns>
-        //public string GetBundleDownloadUrl(string name, string versionAssembly = null)
-        //{
-        //    var model = GetGithubModel(name);
-
-        //    if (IsVersionModel(model, versionAssembly))
-        //        return GetAssetBundle(model)?.browser_download_url;
-
-        //    return null;
-        //}
-
         /// <summary>
         /// GetBundleModels
         /// </summary>
         /// <returns></returns>
         public IEnumerable<BundleModel> GetBundleModels()
         {
-            var bundleModels = new List<BundleModel>();
-            var models = GetGithubModels();
-
-            foreach (var model in models)
-            {
-                if (GetAssetBundle(model) is Asset asset)
+            var task = Task.Run(async () =>
                 {
-                    var bundleModel = new BundleModel()
-                    {
-                        User = this.User,
-                        Repository = this.Repository,
-                        Version = model.name,
-                        Created = model.created_at,
-                        DownloadUrl = asset.browser_download_url,
-                        Body = model.body,
-                    };
-                    bundleModels.Add(bundleModel);
-                }
-            }
+                    return await GetBundleModelsAsync();
+                });
+            return task.GetAwaiter().GetResult();
+        }
 
-            return bundleModels;
+        /// <summary>
+        /// GetBundleModelsAsync
+        /// </summary>
+        /// <returns></returns>
+        public Task<IEnumerable<BundleModel>> GetBundleModelsAsync()
+        {
+            return Task.Run(async () =>
+            {
+                var models = await GetGithubModelsAsync();
+
+                return models
+                    .Where(e => GetAssetBundle(e) is Asset)
+                    .Select(e => NewBundleModel(e, GetAssetBundle(e)));
+            });
+        }
+
+        /// <summary>
+        /// Create New BundleModel
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="bundleAsset"></param>
+        /// <returns></returns>
+        private BundleModel NewBundleModel(GithubModel model, Asset bundleAsset)
+        {
+            var bundleModel = new BundleModel()
+            {
+                User = this.User,
+                Repository = this.Repository,
+                Version = model.name,
+                Created = model.created_at,
+                DownloadUrl = bundleAsset?.browser_download_url,
+                Body = model.body,
+            };
+            return bundleModel;
         }
 
         /// <summary>
