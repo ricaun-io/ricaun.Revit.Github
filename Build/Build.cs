@@ -3,7 +3,6 @@ using Nuke.Common.Execution;
 using ricaun.Nuke;
 using ricaun.Nuke.Components;
 
-[CheckBuildProjectConfigurations]
 class Build : NukeBuild, IPublishPack, IRevitPackageBuilder
 {
     string IHazPackageBuilderProject.Name => "Example";
