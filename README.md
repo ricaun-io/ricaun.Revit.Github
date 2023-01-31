@@ -9,7 +9,7 @@
 
 ## Release
 
-* Download and install [ricaun.Revit.Github.exe](../../releases/latest/download/ricaun.Revit.Github.zip)
+* Download and install [ricaun.Revit.Github.Example.exe](../../releases/latest/download/ricaun.Revit.Github.Example.zip)
 * [Latest release](../../releases/latest)
 
 ## License
