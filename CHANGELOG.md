@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Features
 - [x] Add `Directory.Build.props` one file change all the versions with `Condition`
 - [x] Add Example Command ToolTip with Version
+- [x] Initialize only download with greater Version and return true if download
+- [x] Update `CommandUpdate` with `ShowBalloon`
+### Added
+- Add `InfoCenterUtil` with `ShowBalloon`
 
 ## [0.2.0] / 2023-01-31
 ### Features

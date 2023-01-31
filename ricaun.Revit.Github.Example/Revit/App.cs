@@ -13,7 +13,7 @@ namespace ricaun.Revit.Github.Example.Revit
         {
 
             ribbonPanel = application.CreatePanel("Github");
-            ribbonPanel.CreatePushButton<Commands.Command>("Update")
+            ribbonPanel.CreatePushButton<Commands.CommandUpdate>("Update")
                 .SetLargeImage("https://img.icons8.com/material-outlined/32/000000/github.png")
                 .SetToolTip(GetToopTip());
 
@@ -41,5 +41,4 @@ namespace ricaun.Revit.Github.Example.Revit
             return result;
         }
     }
-
 }

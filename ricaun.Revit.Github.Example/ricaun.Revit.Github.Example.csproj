@@ -116,7 +116,7 @@
 
   <ItemGroup>
     <None Include="Revit\App.cs" />
-    <None Include="Revit\Commands\Command.cs" />
+    <None Include="Revit\Commands\CommandUpdate.cs" />
   </ItemGroup>
 
   <!-- Fody -->
@@ -132,7 +132,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ricaun.Revit.UI" Version="*"/>
+    <PackageReference Include="ricaun.Revit.UI" Version="*" />
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="$(RevitVersion).*" IncludeAssets="build; compile" PrivateAssets="All" />
   </ItemGroup>
 

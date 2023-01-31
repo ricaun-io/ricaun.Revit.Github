@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace ricaun.Revit.Github.Example.Revit.Commands
 {
     [Transaction(TransactionMode.Manual)]
-    public class Command : IExternalCommand
+    public class CommandUpdate : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elementSet)
         {
@@ -19,7 +19,11 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
 
             var request = new GithubRequestService("ricaun-io", "ricaun.Revit.Github");
 
-            request.Initialize((text) => { Console.WriteLine(text); });
+            Task.Run(async () =>
+            {
+                var result = await request.Initialize((text) => { InfoCenterUtils.ShowBalloon(text); });
+                InfoCenterUtils.ShowBalloon($"Download: {result}");
+            });
 
             return Result.Succeeded;
         }

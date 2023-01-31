@@ -62,28 +62,31 @@ namespace ricaun.Revit.Github
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public Task Initialize(Action<string> action = null)
+        public Task<bool> Initialize(Action<string> action = null)
         {
             var task = Task.Run(async () =>
                 {
-                    action?.Invoke("Initialize");
-
                     var bundleModels = await githubBundleService.GetBundleModelsAsync();
-                    action?.Invoke($"BundleModels: {bundleModels.Count()}");
+                    action?.Invoke($"Bundles: [{string.Join(" , ", bundleModels)}]");
 
-                    if (bundleModels.Any() == false) return;
+                    bundleModels = bundleModels
+                        .Where(e => githubBundleService.IsVersionModel(e, pathBundleService.GetAssembly()));
+
+                    if (bundleModels.Any() == false) return false;
 
                     var bundleModelLatest = bundleModels.FirstOrDefault();
 
-                    action?.Invoke($"BundleModel: {bundleModelLatest}");
+                    action?.Invoke($"Download: {bundleModelLatest}");
 
+                    var result = false;
                     if (pathBundleService.TryGetPath(out string folder))
                     {
-                        action?.Invoke($"DownloadBundle: {bundleModelLatest.DownloadUrl}");
-                        await downloadBundleService.DownloadBundleAsync(folder, bundleModelLatest.DownloadUrl);
-                        action?.Invoke($"DownloadBundle: {folder}");
+                        action?.Invoke($"Download: {bundleModelLatest.DownloadUrl}");
+                        result = await downloadBundleService.DownloadBundleAsync(folder, bundleModelLatest.DownloadUrl);
+                        action?.Invoke($"Download: {folder}");
                     }
-                    action?.Invoke($"Finish");
+                    action?.Invoke($"Download: {result}");
+                    return result;
                 });
 
             return task;
