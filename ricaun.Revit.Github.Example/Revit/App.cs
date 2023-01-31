@@ -11,9 +11,11 @@ namespace ricaun.Revit.Github.Example.Revit
         private static RibbonPanel ribbonPanel;
         public Result OnStartup(UIControlledApplication application)
         {
+
             ribbonPanel = application.CreatePanel("Github");
             ribbonPanel.CreatePushButton<Commands.Command>("Update")
-                .SetLargeImage("https://img.icons8.com/material-outlined/32/000000/github.png");
+                .SetLargeImage("https://img.icons8.com/material-outlined/32/000000/github.png")
+                .SetToolTip(GetToopTip());
 
 #if DEBUG
             ribbonPanel.GetRibbonPanel().CustomPanelTitleBarBackground = System.Windows.Media.Brushes.Salmon;
@@ -26,6 +28,17 @@ namespace ricaun.Revit.Github.Example.Revit
         {
             ribbonPanel?.Remove();
             return Result.Succeeded;
+        }
+
+        private string GetToopTip()
+        {
+            var assembly = this.GetType().Assembly;
+            var assemblyName = assembly.GetName();
+            var result = $"App: {assemblyName.Name}\n";
+            result += $"Version: {assemblyName.Version.ToString(3)}\n";
+            result += $"Location: {assembly.Location}";
+
+            return result;
         }
     }
 

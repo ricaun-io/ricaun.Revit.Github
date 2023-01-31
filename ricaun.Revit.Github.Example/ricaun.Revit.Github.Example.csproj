@@ -89,7 +89,7 @@
 
   <PropertyGroup>
     <PackageId>ricaun.Revit.Github.Example</PackageId>
-    <Version>0.2.0</Version>
+    <Version Condition="'$(Version)' == ''">0.2.0</Version>
     <ProjectGuid>{7a495e82-2376-4df3-89cc-d48e2aff6adc}</ProjectGuid>
   </PropertyGroup>
 
