@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.4.0] / 2023-01-31
 ### Features
+- Change to .NET Framework 4.5 
+- Force dependence in `Newtonsoft.Json`
 - Improve `Initialize` documentation
 
 ## [0.3.0] / 2023-01-31
