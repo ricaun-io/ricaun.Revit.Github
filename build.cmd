@@ -1,3 +1,3 @@
 cd .\Build\
-call build.cmd
+call build.cmd %*
 timeout 15

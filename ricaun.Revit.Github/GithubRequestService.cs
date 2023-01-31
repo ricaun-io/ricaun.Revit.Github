@@ -60,22 +60,30 @@ namespace ricaun.Revit.Github
         /// <summary>
         /// Initialize
         /// </summary>
+        /// <param name="action"></param>
         /// <returns></returns>
-        public Task Initialize()
+        public Task Initialize(Action<string> action = null)
         {
             var task = Task.Run(async () =>
                 {
+                    action?.Invoke("Initialize");
+
                     var bundleModels = await githubBundleService.GetBundleModelsAsync();
+                    action?.Invoke($"BundleModels: {bundleModels.Count()}");
+
                     if (bundleModels.Any() == false) return;
-                    var bundleModel = bundleModels.FirstOrDefault();
-                    Console.WriteLine(bundleModel);
+
+                    var bundleModelLatest = bundleModels.FirstOrDefault();
+
+                    action?.Invoke($"BundleModel: {bundleModelLatest}");
 
                     if (pathBundleService.TryGetPath(out string folder))
                     {
-                        await downloadBundleService.DownloadBundleAsync(folder, bundleModel.DownloadUrl);
+                        action?.Invoke($"DownloadBundle: {bundleModelLatest.DownloadUrl}");
+                        await downloadBundleService.DownloadBundleAsync(folder, bundleModelLatest.DownloadUrl);
+                        action?.Invoke($"DownloadBundle: {folder}");
                     }
-
-                    Console.WriteLine($"Initialize Finish");
+                    action?.Invoke($"Finish");
                 });
 
             return task;
