@@ -58,16 +58,16 @@ namespace ricaun.Revit.Github
         }
 
         /// <summary>
-        /// Initialize
+        /// Initialize and download the latest version if it is greater than the current version
         /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public Task<bool> Initialize(Action<string> action = null)
+        /// <param name="callback"></param>
+        /// <returns>Is downloaded a new version</returns>
+        public Task<bool> Initialize(Action<string> callback = null)
         {
             var task = Task.Run(async () =>
                 {
                     var bundleModels = await githubBundleService.GetBundleModelsAsync();
-                    action?.Invoke($"Bundles: [{string.Join(" , ", bundleModels)}]");
+                    callback?.Invoke($"Bundles: [{string.Join(" , ", bundleModels)}]");
 
                     bundleModels = bundleModels
                         .Where(e => githubBundleService.IsVersionModel(e, pathBundleService.GetAssembly()));
@@ -76,16 +76,16 @@ namespace ricaun.Revit.Github
 
                     var bundleModelLatest = bundleModels.FirstOrDefault();
 
-                    action?.Invoke($"Download: {bundleModelLatest}");
+                    callback?.Invoke($"Download: {bundleModelLatest}");
 
                     var result = false;
                     if (pathBundleService.TryGetPath(out string folder))
                     {
-                        action?.Invoke($"Download: {bundleModelLatest.DownloadUrl}");
+                        callback?.Invoke($"Download: {bundleModelLatest.DownloadUrl}");
                         result = await downloadBundleService.DownloadBundleAsync(folder, bundleModelLatest.DownloadUrl);
-                        action?.Invoke($"Download: {folder}");
+                        callback?.Invoke($"Download: {folder}");
                     }
-                    action?.Invoke($"Download: {result}");
+                    callback?.Invoke($"Download: {result}");
                     return result;
                 });
 

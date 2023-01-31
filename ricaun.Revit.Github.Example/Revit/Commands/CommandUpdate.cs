@@ -21,7 +21,7 @@ namespace ricaun.Revit.Github.Example.Revit.Commands
 
             Task.Run(async () =>
             {
-                var result = await request.Initialize((text) => { InfoCenterUtils.ShowBalloon(text); });
+                var result = await request.Initialize((text) => { Console.WriteLine(text); });
                 InfoCenterUtils.ShowBalloon($"Download: {result}");
             });
 
