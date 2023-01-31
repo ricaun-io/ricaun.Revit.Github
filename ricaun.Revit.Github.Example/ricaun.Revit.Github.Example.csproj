@@ -2,11 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
     <OutputType>Library</OutputType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <UseWPF>true</UseWPF>
-    <LangVersion>9</LangVersion>
+    <LangVersion>Latest</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <Configurations>Debug; Release</Configurations>
@@ -90,7 +89,7 @@
 
   <PropertyGroup>
     <PackageId>ricaun.Revit.Github.Example</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.2.0</Version>
     <ProjectGuid>{7a495e82-2376-4df3-89cc-d48e2aff6adc}</ProjectGuid>
   </PropertyGroup>
 
