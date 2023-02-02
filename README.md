@@ -41,6 +41,16 @@ This is a simple RevitAddin project implementation to test the `ricaun.Revit.Git
 * Download and install [ricaun.Revit.Github.Example.exe](../../releases/latest/download/ricaun.Revit.Github.Example.zip)
 * [Latest release](../../releases/latest)
 
+## Videos
+
+Live videos in portuguese with the creation of this project.
+
+[![VideoIma1]][Video1]
+[![VideoIma2]][Video2]
+[![VideoIma3]][Video3]
+[![VideoIma4]][Video4]
+[![VideoIma5]][Video5]
+
 ## License
 
 This project is [licensed](LICENSE) under the [MIT Licence](https://en.wikipedia.org/wiki/MIT_License).
@@ -48,3 +58,14 @@ This project is [licensed](LICENSE) under the [MIT Licence](https://en.wikipedia
 ---
 
 Do you like this project? Please [star this project on GitHub](../../stargazers)!
+
+[Video1]: https://youtu.be/KVVhb15DMrc
+[VideoIma1]: https://img.youtube.com/vi/KVVhb15DMrc/mqdefault.jpg
+[Video2]: https://youtu.be/Io_qCFBLJ-0
+[VideoIma2]: https://img.youtube.com/vi/Io_qCFBLJ-0/mqdefault.jpg
+[Video3]: https://youtu.be/ozbPewoPi9g
+[VideoIma3]: https://img.youtube.com/vi/ozbPewoPi9g/mqdefault.jpg
+[Video4]: https://youtu.be/2hFsxYJapOc
+[VideoIma4]: https://img.youtube.com/vi/2hFsxYJapOc/mqdefault.jpg
+[Video5]: https://youtu.be/_KaACIOmpGA
+[VideoIma5]: https://img.youtube.com/vi/_KaACIOmpGA/mqdefault.jpg
