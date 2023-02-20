@@ -45,6 +45,7 @@ namespace ricaun.Revit.Github.Services
 
             using (var client = new WebClient())
             {
+                System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
                 client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
                 client.DownloadProgressChanged += DownloadProgressChanged;
                 client.DownloadFileCompleted += (s, e) =>
@@ -82,6 +83,7 @@ namespace ricaun.Revit.Github.Services
                     var result = false;
                     using (var client = new WebClient())
                     {
+                        System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
                         client.Headers.Add("User-Agent", $"{this.GetType().Assembly.GetName().Name}");
                         try
                         {
