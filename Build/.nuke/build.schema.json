@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Build Schema",
   "$ref": "#/definitions/build",
+  "title": "Build Schema",
   "definitions": {
     "build": {
       "type": "object",
@@ -54,6 +54,9 @@
         "MainName": {
           "type": "string"
         },
+        "MiddleVersions": {
+          "type": "boolean"
+        },
         "NewVersions": {
           "type": "boolean"
         },
@@ -77,6 +80,12 @@
           "type": "boolean",
           "description": "Shows the execution plan (HTML)"
         },
+        "PreReleaseFilter": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "Profile": {
           "type": "array",
           "description": "Defines the profiles to load",
@@ -87,11 +96,17 @@
         "ProjectNameFolder": {
           "type": "boolean"
         },
+        "ProjectRemoveTargetFrameworkFolder": {
+          "type": "boolean"
+        },
         "ProjectVersionFolder": {
           "type": "boolean"
         },
         "ReleaseBundle": {
           "type": "boolean"
+        },
+        "ReleaseFolder": {
+          "type": "string"
         },
         "ReleaseNameVersion": {
           "type": "boolean"
@@ -120,9 +135,11 @@
               "Build",
               "Clean",
               "Compile",
+              "GitPreRelease",
               "GitRelease",
               "Pack",
               "PackageBuilder",
+              "PrePack",
               "Release",
               "Sign"
             ]
@@ -141,13 +158,18 @@
               "Build",
               "Clean",
               "Compile",
+              "GitPreRelease",
               "GitRelease",
               "Pack",
               "PackageBuilder",
+              "PrePack",
               "Release",
               "Sign"
             ]
           }
+        },
+        "UnlistNuget": {
+          "type": "boolean"
         },
         "VendorDescription": {
           "type": "string"
