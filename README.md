@@ -4,8 +4,7 @@
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-blue)](../..)
 [![Nuke](https://img.shields.io/badge/Nuke-Build-blue)](https://nuke.build/)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Publish](../../actions/workflows/Publish.yml/badge.svg)](../../actions)
-[![Develop](../../actions/workflows/Develop.yml/badge.svg)](../../actions)
+[![Build](../../actions/workflows/Build.yml/badge.svg)](../../actions)
 [![Release](https://img.shields.io/nuget/v/ricaun.Revit.Github?logo=nuget&label=release&color=blue)](https://www.nuget.org/packages/ricaun.Revit.Github)
 
 The `ricaun.Revit.Github` allows downloading bundle files in Autodesk format from Github and unpacking the `zip` in the installed bundle folder.
@@ -36,6 +35,70 @@ bool downloadedNewVersion = await service.Initialize();
 
 This is a simple RevitAddin project implementation to test the `ricaun.Revit.Github` library, the command force to download the last version in this repository.
 
+## Bundle Version Structure
+
+The bundle should have the the version folder that matches the version of the plugin. 
+Inside the version folder, there should be a folder for each version of Revit that the plugin supports.
+The `PackageContents.xml` should point to the correct `addin` files for each version of Revit.
+
+```
+revitaddin.bundle
+|-- PackageContents.xml
+|-- Contents
+|   |-- 1.0.0
+|   |   |-- 2024
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+|   |   |-- 2025
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+```
+
+### Bundle Updater
+
+To update the bundle a new version is downloaded and unzipped in the same `.bundle`, this would replace the `PackageContents.xml` and add the new version folder.
+
+```
+revitaddin.bundle
+|-- PackageContents.xml
+|-- Contents
+|   |-- 1.0.0
+|   |   |-- 2024
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+|   |   |-- 2025
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+|   |-- 2.0.0
+|   |   |-- 2024
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+|   |   |-- 2025
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+```
+
+The next time the plugin is loaded, the `PackageContents.xml` is configured to load the new version. 
+
+### Bundle Delete Version (not implemented in this project)
+
+The plugin should be able to delete a version that is not been used. This can be done by deleting the version folder that is not been used by the plugin.
+
+```
+revitaddin.bundle
+|-- PackageContents.xml
+|-- Contents
+|   |-- 2.0.0
+|   |   |-- 2024
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+|   |   |-- 2025
+|   |   |   |-- revitaddin.addin
+|   |   |   |-- revitaddin.dll
+```
+
+The deletion of the version folder should be done by the plugin before the plugin update.
+
 ## Release
 
 * Download and install [ricaun.Revit.Github.Example.exe](../../releases/latest/download/ricaun.Revit.Github.Example.zip)
@@ -50,6 +113,10 @@ Live videos in portuguese with the creation of this project.
 [![VideoIma3]][Video3]
 [![VideoIma4]][Video4]
 [![VideoIma5]][Video5]
+
+Videos in english about the this project.
+
+[![VideoIma6]][Video6]
 
 ## License
 
@@ -69,3 +136,6 @@ Do you like this project? Please [star this project on GitHub](../../stargazers)
 [VideoIma4]: https://img.youtube.com/vi/2hFsxYJapOc/mqdefault.jpg
 [Video5]: https://youtu.be/_KaACIOmpGA
 [VideoIma5]: https://img.youtube.com/vi/_KaACIOmpGA/mqdefault.jpg
+
+[Video6]: https://youtu.be/CShn6bzXCZI
+[VideoIma6]: https://img.youtube.com/vi/CShn6bzXCZI/mqdefault.jpg

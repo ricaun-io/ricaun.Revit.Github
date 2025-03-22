@@ -100,6 +100,7 @@ namespace ricaun.Revit.Github.Services
                 {
                     using (var client = new WebClient())
                     {
+                        System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
                         client.Headers.Add("User-Agent", GetType().Assembly.GetName().Name);
                         client.Encoding = System.Text.Encoding.UTF8;
                         return await client.DownloadStringTaskAsync(address);
@@ -123,6 +124,7 @@ namespace ricaun.Revit.Github.Services
                 {
                     using (var httpClient = new HttpClient())
                     {
+                        System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
                         httpClient.DefaultRequestHeaders.Add("User-Agent", GetType().Assembly.GetName().Name);
                         return await httpClient.GetStringAsync(address);
                     }
