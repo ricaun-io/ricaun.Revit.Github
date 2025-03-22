@@ -80,7 +80,7 @@ revitaddin.bundle
 
 The next time the plugin is loaded, the `PackageContents.xml` is configured to load the new version. 
 
-### Bundle Delete Version
+### Bundle Delete Version (not implemented in this project)
 
 The plugin should be able to delete a version that is not been used. This can be done by deleting the version folder that is not been used by the plugin.
 
